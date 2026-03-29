@@ -1,32 +1,45 @@
-cmake_minimum_required(VERSION 3.19)
-project(SourcebreakerUI LANGUAGES CXX)
+cmake_minimum_required(VERSION 3.16)
 
-find_package(Qt6 6.5 REQUIRED COMPONENTS Core Widgets)
+project(SourcebreakerUI VERSION 0.1 LANGUAGES CXX)
 
-qt_standard_project_setup()
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-qt_add_executable(SourcebreakerUI
-    WIN32 MACOSX_BUNDLE
+# Без .ui файлов — AUTOUIC не нужен
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+
+if(MSVC)
+    add_compile_options(/utf-8)
+endif()
+
+list(APPEND CMAKE_PREFIX_PATH
+    "C:/Qt/6.10.2/msvc2022_64"
+    "D:/Libs/KDDockWidgets"
+    "C:/Program Files/LLVM"
+)
+
+find_package(Qt6 REQUIRED COMPONENTS Widgets Sql)
+find_package(KDDockWidgets-qt6 REQUIRED)
+
+find_path(CLANG_INCLUDE_DIR clang-c/Index.h
+    PATHS "C:/Program Files/LLVM/include")
+find_library(CLANG_LIBRARY NAMES libclang
+    PATHS "C:/Program Files/LLVM/lib")
+
+add_executable(SourcebreakerUI
     main.cpp
-    mainwindow.cpp
-    mainwindow.h
+    MainWindow.h
+    MainWindow.cpp
+    Storage.h
+    Storage.cpp
 )
 
-target_link_libraries(SourcebreakerUI
-    PRIVATE
-        Qt::Core
-        Qt::Widgets
+target_link_libraries(SourcebreakerUI PRIVATE
+    Qt6::Widgets
+    Qt6::Sql
+    KDAB::kddockwidgets
+    ${CLANG_LIBRARY}
 )
 
-install(TARGETS SourcebreakerUI
-    BUNDLE  DESTINATION .
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-)
-
-qt_generate_deploy_app_script(
-    TARGET SourcebreakerUI
-    OUTPUT_SCRIPT deploy_script
-    NO_UNSUPPORTED_PLATFORM_ERROR
-)
-install(SCRIPT ${deploy_script})
+qt_finalize_executable(SourcebreakerUI)
