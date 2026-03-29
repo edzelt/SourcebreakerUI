@@ -26,12 +26,16 @@ tags
 Makefile*
 *.prl
 *.app
+*.ps1
 moc_*.cpp
 ui_*.h
 qrc_*.cpp
 Thumbs.db
 *.res
 *.rc
+*.json
+*_log.txt
+*_context.txt
 /.qmake.cache
 /.qmake.stash
 **/.qmlls.ini
@@ -82,3 +86,29 @@ CMakeLists.txt.user*
 .uic/
 /build*/
 /.qtcreator/
+/DBTables/
+
+# --- Дополнения для вашего проекта ---
+
+# Кэш языкового сервера (Clangd), который Qt Creator создает для подсказок
+/.qtc_clangd/
+.clangd/
+
+# Внутренние файлы CMake (иногда создаются вне папки build)
+/.cmake/
+
+# Базы данных SQLite (ваш индекс кода)
+# Если вы хотите хранить пустую базу в репозитории, не добавляйте это.
+# Но обычно локальную БД с результатами парсинга в git не кладут.
+*.sqlite
+*.db
+
+# Файлы логов
+*.log
+
+# Папка вывода VS Code или Visual Studio (если решите открыть проект там)
+/out/
+/.vs/
+
+# Если будете использовать clang-format для форматирования кода
+.clang-format
