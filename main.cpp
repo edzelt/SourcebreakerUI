@@ -1,16 +1,19 @@
-#include "MainWindow.h"
+#include "AppMainWindow.h"
+
+#include <kddockwidgets/KDDockWidgets.h>
 
 #include <QApplication>
 
 int main(int argc, char* argv[])
 {
     QApplication app(argc, argv);
-
-    app.setApplicationName(QStringLiteral("Sourcebreaker"));
-    app.setApplicationVersion(QStringLiteral("0.1.0"));
+    app.setApplicationName(QStringLiteral("SourcebreakerUI"));
     app.setOrganizationName(QStringLiteral("edzelt"));
 
-    MainWindow w;
+    // Инициализация KDDockWidgets — после QApplication, до создания окна
+    KDDockWidgets::initFrontend(KDDockWidgets::FrontendType::QtWidgets);
+
+    AppMainWindow w;
     w.show();
 
     return app.exec();

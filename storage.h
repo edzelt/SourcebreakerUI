@@ -5,57 +5,49 @@
 #include <optional>
 
 // ---------------------------------------------------------------------------
-// Storage — управляет подключением к базе данных Sourcebreaker (.db)
+// Storage — подключение к базе данных Sourcebreaker (.db)
 //
-// Принцип: один экземпляр на всё приложение, доступен через Storage::instance().
-// Главная программа работает только в режиме чтения и редактирования
-// пользовательских данных — индексатор запускается отдельно.
+// Синглтон. UI работает только в режиме чтения и редактирования
+// пользовательских полей (alias, short_note, description, status).
+// Индексатор — отдельная утилита, создающая базу.
 // ---------------------------------------------------------------------------
 class Storage
 {
 public:
-    // Получить единственный экземпляр
     static Storage& instance();
 
-    // Открыть базу данных по пути к файлу .db
-    // Возвращает пустую строку при успехе, иначе — описание ошибки
+    // Открыть базу. Возвращает пустую строку при успехе, иначе ошибку.
     QString open(const QString& path);
 
-    // Закрыть текущую базу данных
-    void close();
-
-    // Проверить, открыта ли база
-    bool isOpen() const;
-
-    // Путь к текущему файлу базы данных
+    void    close();
+    bool    isOpen()      const;
     QString currentPath() const;
 
-    // Имя проекта (project_root из таблицы db_info) или имя файла
+    // Имя проекта из db_info(project_root) или имя файла базы
     QString projectName() const;
 
-    // Проверить, завершена ли индексация (indexing_complete = "1")
+    // Индексация завершена (indexing_complete = "1")
     bool isIndexingComplete() const;
 
-    // Читать значение из таблицы db_info
+    // Значение из таблицы db_info
     std::optional<QString> dbInfo(const QString& key) const;
 
-    // Количество сущностей в базе (для StatusBar)
+    // Количество внутренних сущностей (is_external=0) — для StatusBar
     int entityCount() const;
 
-private:
-    Storage() = default;
-    ~Storage();
+    // Прямой доступ к соединению для выполнения запросов из панелей UI
+    QSqlDatabase database() const { return m_db; }
 
-    // Некопируемый синглтон
-    Storage(const Storage&) = delete;
+private:
+    Storage()  = default;
+    ~Storage();
+    Storage(const Storage&)            = delete;
     Storage& operator=(const Storage&) = delete;
 
-    // Проверить схему базы: наличие обязательных таблиц
     bool validateSchema(QString& outError) const;
 
     QString      m_path;
     QSqlDatabase m_db;
 
-    // Имя соединения — уникальный идентификатор для QSqlDatabase
-    static constexpr const char* kConnectionName = "sourcebreaker_main";
+    static constexpr const char* kConnectionName = "sourcebreaker_ui_main";
 };

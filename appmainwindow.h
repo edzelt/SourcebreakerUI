@@ -1,6 +1,6 @@
 #pragma once
 
-#include <kddockwidgets/MainWindow.h>
+#include <kddockwidgets/qtwidgets/views/MainWindow.h>
 
 QT_BEGIN_NAMESPACE
 class QAction;
@@ -10,17 +10,18 @@ QT_END_NAMESPACE
 class InheritancePanel;
 
 // ---------------------------------------------------------------------------
-// MainWindow — главное окно SourcebreakerUI
+// AppMainWindow — главное окно SourcebreakerUI
 //
-// Наследуем от KDDockWidgets::MainWindow для поддержки докинга панелей.
+// Переименовано из MainWindow чтобы избежать конфликта имён с
+// KDDockWidgets::QtWidgets::MainWindow из которого наследуемся.
 // ---------------------------------------------------------------------------
-class MainWindow : public KDDockWidgets::MainWindow
+class AppMainWindow : public KDDockWidgets::QtWidgets::MainWindow
 {
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget* parent = nullptr);
-    ~MainWindow() override;
+    explicit AppMainWindow(QWidget* parent = nullptr);
+    ~AppMainWindow() override;
 
 protected:
     void closeEvent(QCloseEvent* event) override;
@@ -41,17 +42,14 @@ private:
     void updateWindowState();
     void openDatabaseAt(const QString& path);
 
-    // --- Действия ---
     QAction* m_actOpen  = nullptr;
     QAction* m_actClose = nullptr;
     QAction* m_actExit  = nullptr;
     QAction* m_actAbout = nullptr;
 
-    // --- Статусная строка ---
     QLabel* m_statusDbPath      = nullptr;
     QLabel* m_statusEntityCount = nullptr;
     QLabel* m_statusIndexState  = nullptr;
 
-    // --- Панели ---
     InheritancePanel* m_inheritancePanel = nullptr;
 };

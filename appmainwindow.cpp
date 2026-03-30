@@ -1,8 +1,8 @@
-#include "mainwindow.h"
+#include "AppMainWindow.h"
 #include "Storage.h"
 #include "InheritancePanel.h"
 
-#include <kddockwidgets/DockWidget.h>
+#include <kddockwidgets/qtwidgets/views/DockWidget.h>
 
 #include <QMenuBar>
 #include <QMenu>
@@ -18,10 +18,11 @@
 #include <QStyle>
 
 // ---------------------------------------------------------------------------
-MainWindow::MainWindow(QWidget* parent)
-    : KDDockWidgets::MainWindow(QStringLiteral("SourcebreakerMainWindow"), {}, parent)
+AppMainWindow::AppMainWindow(QWidget* parent)
+    : KDDockWidgets::QtWidgets::MainWindow(
+          QStringLiteral("SourcebreakerMainWindow"), {}, parent)
 {
-    setMinimumSize(1100, 700);
+    QWidget::setMinimumSize(1100, 700);
 
     setupMenu();
     setupToolBar();
@@ -31,29 +32,26 @@ MainWindow::MainWindow(QWidget* parent)
     updateWindowState();
 }
 
-MainWindow::~MainWindow() = default;
+AppMainWindow::~AppMainWindow() = default;
 
 // ---------------------------------------------------------------------------
-void MainWindow::setupDocks()
+void AppMainWindow::setupDocks()
 {
-    // --- Панель иерархии наследования ---
     m_inheritancePanel = new InheritancePanel(this);
 
-    auto* dockInheritance = new KDDockWidgets::DockWidget(
+    auto* dock = new KDDockWidgets::QtWidgets::DockWidget(
         QStringLiteral("Иерархия классов"));
-    dockInheritance->setWidget(m_inheritancePanel);
-    dockInheritance->setTitle(tr("Иерархия классов"));
+    dock->setWidget(m_inheritancePanel);
+    dock->setTitle(tr("Иерархия классов"));
 
-    // Пристыковываем слева
-    addDockWidget(dockInheritance, KDDockWidgets::Location_OnLeft);
-    dockInheritance->resize(QSize(280, 400));
+    addDockWidget(dock, KDDockWidgets::Location_OnLeft);
 
     connect(m_inheritancePanel, &InheritancePanel::classSelected,
-            this, &MainWindow::onClassSelected);
+            this, &AppMainWindow::onClassSelected);
 }
 
 // ---------------------------------------------------------------------------
-void MainWindow::setupMenu()
+void AppMainWindow::setupMenu()
 {
     QMenu* menuFile = menuBar()->addMenu(tr("&Файл"));
 
@@ -61,13 +59,13 @@ void MainWindow::setupMenu()
         style()->standardIcon(QStyle::SP_DialogOpenButton),
         tr("&Открыть базу..."),
         QKeySequence::Open,
-        this, &MainWindow::onOpenDatabase);
+        this, &AppMainWindow::onOpenDatabase);
 
     m_actClose = menuFile->addAction(
         style()->standardIcon(QStyle::SP_DialogCloseButton),
         tr("&Закрыть базу"),
         QKeySequence(Qt::CTRL | Qt::Key_W),
-        this, &MainWindow::onCloseDatabase);
+        this, &AppMainWindow::onCloseDatabase);
 
     menuFile->addSeparator();
 
@@ -75,17 +73,17 @@ void MainWindow::setupMenu()
         style()->standardIcon(QStyle::SP_DialogCloseButton),
         tr("В&ыход"),
         QKeySequence::Quit,
-        this, &MainWindow::onExit);
+        this, &AppMainWindow::onExit);
 
     QMenu* menuHelp = menuBar()->addMenu(tr("&Справка"));
     m_actAbout = menuHelp->addAction(
         style()->standardIcon(QStyle::SP_MessageBoxInformation),
         tr("&О программе"),
-        this, &MainWindow::onAbout);
+        this, &AppMainWindow::onAbout);
 }
 
 // ---------------------------------------------------------------------------
-void MainWindow::setupToolBar()
+void AppMainWindow::setupToolBar()
 {
     QToolBar* tb = addToolBar(tr("Основная панель"));
     tb->setObjectName(QStringLiteral("MainToolBar"));
@@ -97,7 +95,7 @@ void MainWindow::setupToolBar()
 }
 
 // ---------------------------------------------------------------------------
-void MainWindow::setupStatusBar()
+void AppMainWindow::setupStatusBar()
 {
     QStatusBar* sb = statusBar();
 
@@ -125,7 +123,7 @@ void MainWindow::setupStatusBar()
 }
 
 // ---------------------------------------------------------------------------
-void MainWindow::updateWindowState()
+void AppMainWindow::updateWindowState()
 {
     Storage& db = Storage::instance();
 
@@ -161,7 +159,7 @@ void MainWindow::updateWindowState()
 }
 
 // ---------------------------------------------------------------------------
-void MainWindow::openDatabaseAt(const QString& path)
+void AppMainWindow::openDatabaseAt(const QString& path)
 {
     if (Storage::instance().isOpen())
         Storage::instance().close();
@@ -178,13 +176,12 @@ void MainWindow::openDatabaseAt(const QString& path)
 }
 
 // ---------------------------------------------------------------------------
-void MainWindow::onClassSelected(int entityId)
+void AppMainWindow::onClassSelected(int entityId)
 {
-    // Пока показываем в статусной строке — до появления нижней панели
     statusBar()->showMessage(tr("Выбран класс id=%1").arg(entityId), 2000);
 }
 
-void MainWindow::onOpenDatabase()
+void AppMainWindow::onOpenDatabase()
 {
     QFileDialog dlg(this, tr("Открыть базу данных"));
     dlg.setNameFilter(tr("Базы Sourcebreaker (*.db);;Все файлы (*)"));
@@ -204,7 +201,7 @@ void MainWindow::onOpenDatabase()
         openDatabaseAt(files.first());
 }
 
-void MainWindow::onCloseDatabase()
+void AppMainWindow::onCloseDatabase()
 {
     if (!Storage::instance().isOpen()) return;
     Storage::instance().close();
@@ -212,9 +209,9 @@ void MainWindow::onCloseDatabase()
     statusBar()->showMessage(tr("База закрыта"), 2000);
 }
 
-void MainWindow::onExit() { close(); }
+void AppMainWindow::onExit() { close(); }
 
-void MainWindow::onAbout()
+void AppMainWindow::onAbout()
 {
     QMessageBox::about(this,
                        tr("О программе SourcebreakerUI"),
@@ -224,7 +221,7 @@ void MainWindow::onAbout()
                           "MSVC 2022 · Windows"));
 }
 
-void MainWindow::closeEvent(QCloseEvent* event)
+void AppMainWindow::closeEvent(QCloseEvent* event)
 {
     if (Storage::instance().isOpen())
         Storage::instance().close();

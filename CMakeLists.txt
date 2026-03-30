@@ -5,7 +5,6 @@ project(SourcebreakerUI VERSION 0.1 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Без .ui файлов — AUTOUIC не нужен
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
@@ -29,11 +28,17 @@ find_library(CLANG_LIBRARY NAMES libclang
 
 add_executable(SourcebreakerUI
     main.cpp
-    MainWindow.h
-    MainWindow.cpp
+    AppMainWindow.h
+    AppMainWindow.cpp
     Storage.h
     Storage.cpp
+    EntityTreeModel.h
+    EntityTreeModel.cpp
+    InheritancePanel.h
+    InheritancePanel.cpp
 )
+
+target_include_directories(SourcebreakerUI PRIVATE ${CLANG_INCLUDE_DIR})
 
 target_link_libraries(SourcebreakerUI PRIVATE
     Qt6::Widgets
